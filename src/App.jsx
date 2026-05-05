@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 import deleteImg from "./assets/delete.png";
 import editImg from "./assets/edit.png";
+import EditModal from "./EditModal";
 import "./App.css";
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
     return tasksFromDB ? JSON.parse(tasksFromDB) : [];
   });
   const [newTask, setNewTask] = useState("");
+  const [selectedTask, setSelectedTask] = useState("");
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -25,6 +27,23 @@ function App() {
         return [...tasks, { id: nanoid(), text: newTask, completed: false }];
       });
       setNewTask("");
+    }
+  };
+
+  const handleEdit = (editedTask, id) => {
+    if (editedTask) {
+      const updatedTasks = tasks.map((task) => {
+        if (task.id === id) {
+          return {
+            ...task,
+            text: editedTask,
+          };
+        } else {
+          return task;
+        }
+      });
+      setSelectedTask("");
+      setTasks(updatedTasks);
     }
   };
 
@@ -83,7 +102,6 @@ function App() {
                 >
                   <input
                     type="checkbox"
-                    id="task"
                     onChange={() => handleCheck(task.id)}
                     checked={task.completed}
                   />
@@ -95,7 +113,12 @@ function App() {
                     {task.text}
                   </label>
                   <div className="flex items-center gap-2.5">
-                    <img src={editImg} alt="edit image" className="h-6" />
+                    <img
+                      src={editImg}
+                      alt="edit image"
+                      className="h-6"
+                      onClick={() => setSelectedTask(task.id)}
+                    />
                     <img
                       src={deleteImg}
                       alt="delete image"
@@ -103,6 +126,14 @@ function App() {
                       onClick={() => deleteTask(task.id)}
                     />
                   </div>
+                  {selectedTask === task.id && (
+                    <EditModal
+                      onClose={() => setSelectedTask("")}
+                      task={task.text}
+                      taskId={task.id}
+                      handleEdit={handleEdit}
+                    />
+                  )}
                 </div>
               );
             })
