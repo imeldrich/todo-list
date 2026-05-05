@@ -24,7 +24,7 @@ function App() {
   const addTask = () => {
     if (newTask) {
       setTasks((tasks) => {
-        return [...tasks, { id: nanoid(), text: newTask, completed: false }];
+        return [{ id: nanoid(), text: newTask, completed: false }, ...tasks];
       });
       setNewTask("");
     }
